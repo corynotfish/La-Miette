@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - La Miette</title>
+
+
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        />
+
+        <link rel="stylesheet" href="css/checkout.css">
+
+    </head>
+    <body>
+
+
+<header>
+        <div class="header-content">
+            <a href="index.html" class="logo">La Miette<span>.</span> Checkout</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="menu.html">Menu</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="checkout-container">
+            <!-- Order Summary Section -->
+            <div class="order-summary">
+                <h2>Your <span>Order</span></h2>
+                <div id="cart-items">
+                    <!-- Cart items will be loaded here from localStorage -->
+                </div>
+                <div id="empty-cart" class="empty-cart" style="display: none;">
+                    <i class="fas fa-shopping-cart" style="font-size: 40px; margin-bottom: 10px;"></i>
+                    <p>Your cart is empty</p>
+                    <a href="menu.html">Browse our menu</a>
+                </div>
+                <div id="order-totals" style="display: none;">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">Rp0</span>
+                    </div>
+                    <div class="summary-row" id="delivery-row">
+                        <span>Delivery Fee:</span>
+                        <span id="delivery-fee">Rp10,000</span>
+                    </div>
+                    <div class="summary-row total-row">
+                        <span>Total:</span>
+                        <span id="total">Rp0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Information Section -->
+            <div class="customer-info">
+                <h2>Your <span>Details</span></h2>
+                <form id="checkout-form">
+                    <div class="form-group">
+                        <label for="name">Full Name*</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number*</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label>Order Type*</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="pickup" name="order_type" value="pickup" checked>
+                                <label for="pickup">Pickup</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="delivery" name="order_type" value="delivery">
+                                <label for="delivery">Delivery (+Rp10,000)</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="delivery-address-group" style="display: none;">
+                        <label for="address">Delivery Address*</label>
+                        <textarea id="address" name="address" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Pickup/Delivery Date*</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Special Instructions</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="Allergies, special requests, etc."></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn" id="submit-btn" disabled>Complete Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load cart from localStorage
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItemsEl = document.getElementById('cart-items');
+            const emptyCartEl = document.getElementById('empty-cart');
+            const orderTotalsEl = document.getElementById('order-totals');
+            const submitBtn = document.getElementById('submit-btn');
+
+            // Display cart items
+            function displayCart() {
+                cartItemsEl.innerHTML = '';
+                
+                if (cart.length === 0) {
+                    emptyCartEl.style.display = 'block';
+                    orderTotalsEl.style.display = 'none';
+                    submitBtn.disabled = true;
+                    return;
+                }
+
+                emptyCartEl.style.display = 'none';
+                orderTotalsEl.style.display = 'block';
+                submitBtn.disabled = false;
+
+                let subtotal = 0;
+
+                cart.forEach((item, index) => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'cart-item';
+                    itemEl.innerHTML = `
+                        <div class="item-details">
+                            <h3>${item.name}</h3>
+                            <p>Rp${item.price.toLocaleString('id-ID')}</p>
+                        </div>
+                        <div class="item-controls">
+                            <button class="qty-btn minus" data-index="${index}">-</button>
+                            <input type="text" class="qty-input" value="${item.quantity}" readonly>
+                            <button class="qty-btn plus" data-index="${index}">+</button>
+                            <button class="remove-btn" data-index="${index}">&times;</button>
+                        </div>
+                        <div class="item-price">
+                            Rp${itemTotal.toLocaleString('id-ID')}
+                        </div>
+                    `;
+                    cartItemsEl.appendChild(itemEl);
+                });
+
+                // Calculate totals
+                const isDelivery = document.getElementById('delivery').checked;
+                const deliveryFee = isDelivery ? 10000 : 0;
+                const total = subtotal + deliveryFee;
+
+                document.getElementById('subtotal').textContent = `Rp${subtotal.toLocaleString('id-ID')}`;
+                document.getElementById('delivery-fee').textContent = `Rp${deliveryFee.toLocaleString('id-ID')}`;
+                document.getElementById('total').textContent = `Rp${total.toLocaleString('id-ID')}`;
+            }
+
+            // Handle quantity changes
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('minus') || e.target.classList.contains('plus')) {
+                    const index = e.target.dataset.index;
+                    const item = cart[index];
+                    
+                    if (e.target.classList.contains('minus')) {
+                        item.quantity = Math.max(1, item.quantity - 1);
+                    } else {
+                        item.quantity += 1;
+                    }
+                    
+                    saveAndUpdateCart();
+                }
+                
+                if (e.target.classList.contains('remove-btn')) {
+                    const index = e.target.dataset.index;
+                    cart.splice(index, 1);
+                    saveAndUpdateCart();
+                }
+            });
+
+            // Handle delivery option change
+            document.getElementById('delivery').addEventListener('change', function() {
+                document.getElementById('delivery-address-group').style.display = 
+                    this.checked ? 'block' : 'none';
+                document.getElementById('address').required = this.checked;
+                saveAndUpdateCart();
+            });
+
+            document.getElementById('pickup').addEventListener('change', function() {
+                document.getElementById('delivery-address-group').style.display = 'none';
+                document.getElementById('address').required = false;
+                saveAndUpdateCart();
+            });
+
+            // Save cart and update display
+            function saveAndUpdateCart() {
+                localStorage.setItem('cart', JSON.stringify(cart));
+                displayCart();
+            }
+
+            // Form submission
+            document.getElementById('checkout-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Prepare order data
+                const order = {
+                    customer: {
+                        name: document.getElementById('name').value,
+                        phone: document.getElementById('phone').value,
+                        email: document.getElementById('email').value,
+                        address: document.getElementById('delivery').checked 
+                            ? document.getElementById('address').value 
+                            : 'Pickup'
+                    },
+                    orderType: document.querySelector('input[name="order_type"]:checked').value,
+                    date: document.getElementById('date').value,
+                    notes: document.getElementById('notes').value,
+                    items: cart,
+                    subtotal: document.getElementById('subtotal').textContent,
+                    delivery: document.getElementById('delivery-fee').textContent,
+                    total: document.getElementById('total').textContent
+                };
+
+                // Here you would typically send this to your server
+                console.log('Order submitted:', order);
+                
+                // For demo purposes, we'll just show an alert
+                alert(`Order placed successfully!\nTotal: ${order.total}`);
+                
+                // Clear cart and redirect
+                localStorage.removeItem('cart');
+                window.location.href = 'thankyou.html';
+            });
+
+            // Initial display
+            displayCart();
+        });
+    </script>
+    </body>
+</html>

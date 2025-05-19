@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>La Miette</title>
+
+    <!-- font awesome cdn link -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+
+    <!-- custom css file link -->
+    <link rel="stylesheet" href="css/menu.css" />
+  </head>
+  <body>
+
+<!-- header section starts-->
+<header>
+
+      <input type="checkbox" name="" id="toggler">
+      <label for="toggler" class="fas fa-bars"></label>
+
+      <a href="#" class="logo">Our Menu<span>.</span></a>
+
+      <nav class="navbar">
+        <a href="index.html">home</a>
+      </nav>
+
+            <div class="icons">
+        <a href="checkout.html" class="fas fa-shopping-cart" id="cart-btn"></a>
+      </div>
+</header>
+<!-- header section ends -->
+
+<!-- menu section starts -->
+<section class="menu" id="menu">
+  <h1 class="heading">Menu</h1>
+
+  <button class="cart-btn" id="cart-btn" onclick="goToCheckout()"></button>
+
+  <div class="box-container" id="menu-container">
+    <!-- Items will be added dynamically by JavaScript -->
+  </div>
+</section>
+<!-- menu section ends -->
+
+<script>
+  // Menu data
+  const menuItems = [
+    { id: 1, name: "cheesecake", price: 25000, image: "images/images 1.jpg" },
+    { id: 2, name: "strawberry croissant", price: 45000, image: "images/images 2.jpg" },
+    { id: 3, name: "cinnamon roll", price: 20000, image: "images/images 3.jpg" },
+    { id: 4, name: "strawberry tart", price: 65000, image: "images/images 4.jpg" },
+    { id: 5, name: "choco cupcake", price: 15000, image: "images/images 5.jpg" },
+    { id: 6, name: "pancake", price: 35000, image: "images/images 6.jpg" },
+    { id: 7, name: "choco chip cookies", price: 20000, image: "images/images 7.jpg" },
+    { id: 8, name: "strawberry shortcake slice", price: 25000, image: "images/images 8.jpg" },
+    { id: 9, name: "mini love pink macaroons", price: 25000, image: "images/images 9.jpg" }
+  ];
+
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  let currentlyShowingShareOptions = null;
+
+  // Display menu
+  const menuContainer = document.getElementById('menu-container');
+  menuItems.forEach(item => {
+    menuContainer.innerHTML += `
+      <div class="box" id="menu-item-${item.id}">
+        <div class="image">
+          <img src="${item.image}" alt="${item.name}">
+          <div class="icons">
+            <a href="#" class="fas fa-shopping-cart" onclick="addToCart(${item.id}); return false;"></a>
+            <a href="#" class="fas fa-share" onclick="toggleShareOptions(${item.id}); return false;"></a>
+          </div>
+          <div class="content">
+            <h3>${item.name}</h3>
+            <div class="price">Rp${item.price.toLocaleString('id-ID')}</div>
+          </div>
+        </div>
+        <div class="share-options" id="share-options-${item.id}" style="display: none;">
+          <div class="share-icons">
+            <a href="#" onclick="shareToInstagram(${item.id}); return false;" class="fab fa-instagram"></a>
+            <a href="#" onclick="shareToTwitter(${item.id}); return false;" class="fab fa-twitter"></a>
+            <a href="#" onclick="shareToWhatsApp(${item.id}); return false;" class="fab fa-whatsapp"></a>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  // Toggle share options
+  function toggleShareOptions(itemId) {
+    // Hide any currently shown share options
+    if (currentlyShowingShareOptions && currentlyShowingShareOptions !== itemId) {
+      const previousOptions = document.getElementById(`share-options-${currentlyShowingShareOptions}`);
+      if (previousOptions) previousOptions.style.display = 'none';
+    }
+    
+    // Toggle current item's share options
+    const shareOptions = document.getElementById(`share-options-${itemId}`);
+    if (shareOptions.style.display === 'block') {
+      shareOptions.style.display = 'none';
+      currentlyShowingShareOptions = null;
+    } else {
+      shareOptions.style.display = 'block';
+      currentlyShowingShareOptions = itemId;
+    }
+  }
+
+  // Share functions
+  function shareToInstagram(itemId) {
+    const item = menuItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    const shareText = `${item.name} only for Rp${item.price.toLocaleString('id-ID')} in La-Miette!`;
+    const shareUrl = window.location.href;
+    
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      window.open(`instagram://library?AssetPath=${encodeURIComponent(item.image)}&InstagramCaption=${encodeURIComponent(shareText)}`, '_blank');
+    } else {
+      prompt("Copy this text to share on Instagram:", `${shareText} ${shareUrl}`);
+    }
+    
+    // Hide the share options after clicking
+    document.getElementById(`share-options-${itemId}`).style.display = 'none';
+    currentlyShowingShareOptions = null;
+  }
+
+  function shareToTwitter(itemId) {
+    const item = menuItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    const shareText = `Check out this delicious ${item.name} for only Rp${item.price.toLocaleString('id-ID')}!`;
+    const shareUrl = window.location.href;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+    
+    window.open(twitterUrl, '_blank', 'width=550,height=420');
+    document.getElementById(`share-options-${itemId}`).style.display = 'none';
+    currentlyShowingShareOptions = null;
+  }
+
+  function shareToWhatsApp(itemId) {
+    const item = menuItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    const shareText = `Check out this delicious ${item.name} for only Rp${item.price.toLocaleString('id-ID')}! ${window.location.href}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+    
+    window.open(whatsappUrl, '_blank');
+    document.getElementById(`share-options-${itemId}`).style.display = 'none';
+    currentlyShowingShareOptions = null;
+  }
+
+  // Update cart button
+  function updateCartButton() {
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    document.getElementById('cart-btn').textContent = totalItems;
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }
+
+  // Add to cart
+  function addToCart(id) {
+    const existingItem = cart.find(item => item.id === id);
+    const menuItem = menuItems.find(item => item.id === id);
+    
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      cart.push({ ...menuItem, quantity: 1 });
+    }
+    
+    updateCartButton();
+  }
+
+  // Go to checkout
+  function goToCheckout() {
+    if (cart.length === 0) {
+      alert("Your cart is empty!");
+      return;
+    }
+    window.location.href = "checkout.html";
+  }
+
+  // Initialize
+  updateCartButton();
+</script>
+
+  </body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>La Miette</title>
+
+    <!-- font awesome cdn link -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+
+    <!-- custom css file link -->
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+<body>
+<!-- header section start -->
+
+<header>
+
+      <input type="checkbox" name="" id="toggler">
+      <label for="toggler" class="fas fa-bars"></label>
+
+      <a href="#" class="logo">Bakery Shop<span>.</span></a>
+
+      <nav class="navbar">
+        <a href="#home">home</a>
+        <a href="#about">about</a>
+        <a href="#menu">menu</a>
+        <a href="#review">review</a>
+        <a href="#contact">contact</a>
+      </nav>
+
+      <div class="icons">
+        <a href="checkout.html" class="fas fa-shopping-cart" id="cart-btn"></a>
+      </div>
+</header>
+
+<!-- header section ends -->
+
+<!-- home section starts -->
+
+<section class="home" id="home">
+
+<div class="content">
+  <h3>La Miette</h3>
+  <span> Eat. smile. repeat. </span>
+  <p>Welcome to La Miette, where sweetness is baked into every bite. From fluffy cakes to buttery pastries and cookies that melt in your mouth, everything is made fresh with love and care. Step inside and let the aroma wrap you in comfort and joy.</P>
+  <p>we are open 08.00am to 07.30pm</p>
+    <a href="checkout.html" class="btn">shop now</a>
+</div>
+
+</section>
+
+<!-- home section ends -->
+
+<!-- about section starts -->
+
+<section class="about" id="about">
+  <h1 class="heading"> <span> About </span> Us </h1>
+<div class="row">
+
+  <div class="video-container">
+    <video src="images/LA MIETTE (1).mp4" loop autoplay muted></video>
+    <h3> Made By Love </h3>
+  </div>
+
+  <div class="content">
+    <h3>Why Choose Us?</h3>
+    <p>Because every treat we bake is made with heart. At La Miette, we believe that good sweets bring people together. From our carefully selected ingredients to the smiles we serve with, we’re here to make your day a little sweeter—one bite at a time.</p>
+
+    <h3>where to find us?</h3>
+    <p class="top-paragraph">serenity road 16-99</P>
+</div>
+
+
+</section>
+
+<!-- about section ends -->
+
+<!-- menu section starts -->
+<section class="menu" id="menu">
+  <h1 class="heading">Menu</h1>
+
+  <button class="cart-btn" id="cart-btn" onclick="goToCheckout()"></button>
+
+  <div class="box-container" id="menu-container">
+    <!-- Items will be added dynamically by JavaScript -->
+  </div>
+</section>
+<!-- menu section ends -->
+
+<script>
+  // Menu data
+  const menuItems = [
+    { id: 1, name: "cheesecake", price: 25000, image: "images/images 1.jpg" },
+    { id: 2, name: "strawberry croissant", price: 45000, image: "images/images 2.jpg" },
+    { id: 3, name: "cinnamon roll", price: 20000, image: "images/images 3.jpg" },
+    { id: 4, name: "strawberry tart", price: 65000, image: "images/images 4.jpg" },
+    { id: 5, name: "choco cupcake", price: 15000, image: "images/images 5.jpg" },
+    { id: 6, name: "pancake", price: 35000, image: "images/images 6.jpg" },
+    { id: 7, name: "choco chip cookies", price: 20000, image: "images/images 7.jpg" },
+    { id: 8, name: "strawberry shortcake slice", price: 25000, image: "images/images 8.jpg" },
+    { id: 9, name: "mini love pink macaroons", price: 25000, image: "images/images 9.jpg" }
+  ];
+
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  let currentlyShowingShareOptions = null;
+
+  // Display menu
+  const menuContainer = document.getElementById('menu-container');
+  menuItems.forEach(item => {
+    menuContainer.innerHTML += `
+      <div class="box" id="menu-item-${item.id}">
+        <div class="image">
+          <img src="${item.image}" alt="${item.name}">
+          <div class="icons">
+            <a href="#" class="fas fa-shopping-cart" onclick="addToCart(${item.id}); return false;"></a>
+            <a href="#" class="fas fa-share" onclick="toggleShareOptions(${item.id}); return false;"></a>
+          </div>
+          <div class="content">
+            <h3>${item.name}</h3>
+            <div class="price">Rp${item.price.toLocaleString('id-ID')}</div>
+          </div>
+        </div>
+        <div class="share-options" id="share-options-${item.id}" style="display: none;">
+          <div class="share-icons">
+            <a href="#" onclick="shareToInstagram(${item.id}); return false;" class="fab fa-instagram"></a>
+            <a href="#" onclick="shareToTwitter(${item.id}); return false;" class="fab fa-twitter"></a>
+            <a href="#" onclick="shareToWhatsApp(${item.id}); return false;" class="fab fa-whatsapp"></a>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  // Toggle share options
+  function toggleShareOptions(itemId) {
+    // Hide any currently shown share options
+    if (currentlyShowingShareOptions && currentlyShowingShareOptions !== itemId) {
+      const previousOptions = document.getElementById(`share-options-${currentlyShowingShareOptions}`);
+      if (previousOptions) previousOptions.style.display = 'none';
+    }
+    
+    // Toggle current item's share options
+    const shareOptions = document.getElementById(`share-options-${itemId}`);
+    if (shareOptions.style.display === 'block') {
+      shareOptions.style.display = 'none';
+      currentlyShowingShareOptions = null;
+    } else {
+      shareOptions.style.display = 'block';
+      currentlyShowingShareOptions = itemId;
+    }
+  }
+
+  // Share functions
+  function shareToInstagram(itemId) {
+    const item = menuItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    const shareText = ` ${item.name} only for Rp${item.price.toLocaleString('id-ID')} in La-Miette!`;
+    const shareUrl = window.location.href;
+    
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      window.open(`instagram://library?AssetPath=${encodeURIComponent(item.image)}&InstagramCaption=${encodeURIComponent(shareText)}`, '_blank');
+    } else {
+      prompt("Copy this text to share on Instagram:", `${shareText} ${shareUrl}`);
+    }
+    
+    // Hide the share options after clicking
+    document.getElementById(`share-options-${itemId}`).style.display = 'none';
+    currentlyShowingShareOptions = null;
+  }
+
+  function shareToTwitter(itemId) {
+    const item = menuItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    const shareText = `Check out this delicious ${item.name} for only Rp${item.price.toLocaleString('id-ID')}!`;
+    const shareUrl = window.location.href;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+    
+    window.open(twitterUrl, '_blank', 'width=550,height=420');
+    document.getElementById(`share-options-${itemId}`).style.display = 'none';
+    currentlyShowingShareOptions = null;
+  }
+
+  function shareToWhatsApp(itemId) {
+    const item = menuItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    const shareText = `Check out this delicious ${item.name} for only Rp${item.price.toLocaleString('id-ID')}! ${window.location.href}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+    
+    window.open(whatsappUrl, '_blank');
+    document.getElementById(`share-options-${itemId}`).style.display = 'none';
+    currentlyShowingShareOptions = null;
+  }
+
+  // Update cart button
+  function updateCartButton() {
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    document.getElementById('cart-btn').textContent = totalItems;
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }
+
+  // Add to cart
+  function addToCart(id) {
+    const existingItem = cart.find(item => item.id === id);
+    const menuItem = menuItems.find(item => item.id === id);
+    
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      cart.push({ ...menuItem, quantity: 1 });
+    }
+    
+    updateCartButton();
+  }
+
+  // Go to checkout
+  function goToCheckout() {
+    if (cart.length === 0) {
+      alert("Your cart is empty!");
+      return;
+    }
+    window.location.href = "checkout.html";
+  }
+
+  // Initialize
+  updateCartButton();
+</script>
+
+<!-- review section starts -->
+
+<section class="review" id="review">
+
+  <h1 class="heading">customer's <span> Review </span></h1>
+
+  <div class="box-container">
+
+    <div class="box">
+      <div class="stars">
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+      </div>
+      <p>"Stopped by on a whim and ended up staying longer than I planned. The vibe’s cozy, staff don’t hover, and the starwberry shortcake? Solid. Definitely a spot I’ll keep in my rotation."</p>
+      <div class="user">
+        <img src="images/aishallretvrn.jpeg" alt="">
+        <div class="user-info">
+          <h3>ghostofaisha</h3>
+          <span>happy customer</span>
+        </div>
+      </div>
+      <span class="fas fa-quote right"></span>
+    </div>
+
+    <div class="box">
+      <div class="stars">
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+      </div>
+      <p>"Absolutely love this place! The croissants are perfectly flaky, and the choco cupcakes are to die for. Staff is always smile and welcoming — it feels like home every time I walk in."</p>
+      <div class="user">
+        <img src="images/fayyiraa.jpeg" alt="">
+        <div class="user-info">
+          <h3>fayyiraa</h3>
+          <span>happy customer</span>
+        </div>
+      </div>
+      <span class="fas fa-quote right"></span>
+    </div>
+
+    <div class="box">
+      <div class="stars">
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+      </div>
+      <p>"Great variety of desserts. I especially like their strawberry tarts. Just wish they had more seating, but the quality and the taste definitely makes up for it."</p>
+      <div class="user">
+        <img src="images/hfzhLubna.jpeg" alt="">
+        <div class="user-info">
+          <h3>blubna</h3>
+          <span>satisfied customer</span>
+        </div>
+      </div>
+      <span class="fas fa-quote right"></span>
+    </div>
+
+    <div class="box">
+      <div class="stars">
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+      </div>
+      <p>"The moment you walk in, the smell of sweetness hits you — it’s heaven! I tried their cheesecake and cinnamon rolls, and both were insanely good. Everything tastes homemade and fresh</p>
+      <div class="user">
+        <img src="images/sukaNndyy.jpeg" alt="">
+        <div class="user-info">
+          <h3>sukaNndyy</h3>
+          <span>happy customer</span>
+        </div>
+      </div>
+      <span class="fas fa-quote right"></span>
+    </div>
+
+  </div>
+
+</section>
+
+<!--review section ends -->
+
+<!-- contact section  starts -->
+
+<section class="contact" id="contact">
+  <h1 class="heading"><span>contact</span> Us</h1>
+  
+  <div class="row">
+    <!-- Updated Form with Formspree -->
+    <form action="https://formspree.io/f/mqaqnjld" method="POST">
+      <input type="text" name="name" placeholder="name" class="box" required>
+      <input type="email" name="_replyto" placeholder="email" class="box" required>
+      <textarea name="message" class="box" placeholder="message" cols="29" rows="10" required></textarea>
+      <input type="hidden" name="_subject" value="New Contact Form Submission">
+      <input type="submit" value="send message" class="btn">
+    </form>
+
+    <div class="image-container">
+      <img src="images/cookies_stack-removebg-preview.png" class="back-image" alt="">
+      <img src="images/calico_critters___sylvillian_families_png_icon__squirrel_chipmunk_-removebg-preview.png" class="front-image" alt="">
+    </div>
+  </div>
+</section>
+
+<!-- contact section ends -->
+
+<!-- footer section starts-->
+
+<section class="footer">
+
+  <div class="box-container">
+
+    <div class="box">
+      <h3>quick links</h3>
+      <a href="#home">home</a>
+      <a href="#about">about</a>
+      <a href="#menu">menu</a>
+      <a href="#review">review</a>
+      <a href="#contact">contact</a>
+    </div>
+
+    <div class="box">
+      <h3>extra links</h3>
+      <a href="checkout.html">online order</a>
+      <a href="#">aisha kirani</a>
+      <a href="#">assyfaira</a>
+      <a href="#">hafizah lubna</a>
+      <a href="#">nerissa aznii</a>
+  </div> 
+
+  <div class="box">
+    <h3>social links</h3>
+    <a href="#">instagram</a>
+    <a href="#">x</a>
+    <a href="#">youtube</a>
+    <a href="#">tik tok</a>
+</div>
+
+    <div class="box">
+      <h3>contact info</h3>
+      <a href="#">+62 823-3143-5552</a>
+      <a href="#">lametite@gmail.com</a>
+      <a href="#">SPEMDUTA, Sidoarjo</a>
+    </div>
+
+  <div class="credit"> created by. <a href="https://github.com/corynotfish">Cory Not Fish</a></div>
+
+</section>
+
+<!-- footer section ends -->
+
+
+
+
+
+
+  </body>
+</html>
